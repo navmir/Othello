@@ -1,12 +1,44 @@
-
+import { BrowserRouter as Router, Route, Link } from 'react';
 import React from 'react';
 import './index.css';
+import ReactDOM from 'react-dom';
+
 
 function Square(props) {
     return (
     <button className="square" onClick={props.onClick}>
         {props.value}
     </button>
+    );
+}
+
+function Routing() {
+    return (
+    <Router>
+        <div>
+            <ul>
+            <li>
+                <Link to="/">Startpage</Link>
+            </li>
+            <li>
+                <Link to="/">Game</Link>
+            </li>
+            </ul>
+
+            <Route exact path="-/" component={Startpage} />
+            <Route path="/game" component={Game} />
+        </div>
+    </Router>
+    );
+}
+
+function Startpage() {
+    return (
+        <div>
+            <h2>Startpage</h2>
+            <p>'Click on "Game" to get to the actual game.'</p>
+            <br />
+            <p>'Maximum of two players allowed per game.'</p>
     );
 }
 
@@ -55,31 +87,6 @@ export function updateRow(row){
     }
     return row
 }
-/*
-(0,2):  (1,3)
-(0,1):  (2,3) -> (1,2)
-(0,0):  (3,3) -> (2,2) -> (1,1)
-(1,0):  (3,2) -> (2,1)
-(2,0):  (3,1) 
-
-i = 0 -> 1 -> 2 // tills y + i = length || x + i = length --> i < length - y
-const elementToCompare = board[length - y - i][length - x - i]
-
-  x ------>
-y [O][O][X][X]
-| [X][O][X][X]
-| [X][X][O][X]
-v [X][X][O][X]
-
-(0,1): (1,0)
-(0,2): (2,0) -> (1,1)
-(0,3): (3,0) -> (2,1) -> (1,2)
-(1,3): (3,1) -> (2,2)
-(2,3): (3,2)
-
-i = 0 -> 1 -> // while x < y - i
-constElementToCompare = board[y - i][x + i]
-*/
 
 export function updateDiagonaly(board) {
     let resultBoard = board.slice()
@@ -174,7 +181,9 @@ export default class Board extends React.Component {
         this.state = {
             squares: Array(9).fill(Array(9).fill(null)),
             xIsNext: true,
+            people: []
         };
+        this.handleNameClick = this.handleNameClick.bind(this);
     }
 
     handleClick(x, y) {
@@ -188,6 +197,23 @@ export default class Board extends React.Component {
             squares: updatedSquares,
             xIsNext: !this.state.xIsNext,
         });
+    }
+
+    handleNameClick() {
+        if(this.nameTextInput !== null && this.state.people.length <= 1) {
+            this.setState({
+            people: this.state.people.concat(this.nameTextInput.value)
+            });
+        }
+    }
+
+    componentDidMount() {
+        ReactDOM.findDOMNode(this.nameTextInput).focus();
+    }
+
+    componentDidUpdate() {
+        this.nameTextInput.value='';
+        ReactDOM.findDOMNode(this.nameTextInput).focus();
     }
 
     renderSquare(x, y) {
@@ -216,11 +242,37 @@ export default class Board extends React.Component {
             }
             rows.push(<div className="board-row">{col}</div>)
         }
+
+        let names = this.state.people.map(name => {
+            return <li>{name}</li>;
+            });
         return (
+        <React.Fragment>
         <div>
             <div className="status">{status}</div>
             {rows}
         </div>
+        <div className="row">
+            <div className="column">
+            <br />
+              <input type="text" placeholder="Enter player name"
+              ref={(ref) => this.nameTextInput = ref}
+              className="form-control" />
+            </div>
+            <div className="col-md-4">
+            <button type="button" className="btnAddPlayer"
+            onClick={this.handleNameClick}>Add</button>
+            </div>
+            <br />
+
+            <div className="row">
+                <div className="column">
+                <ol>{names}</ol>
+                </div>
+            </div>
+           <br />
+        </div>
+        </React.Fragment>
         );
     }
 }

@@ -1,44 +1,14 @@
-import { BrowserRouter as Router, Route, Link } from 'react';
-import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import React, { Component } from 'react';
 import './index.css';
-import ReactDOM from 'react-dom';
-
+import Home from "./components/Home";
+import Error from "./components/Error";
 
 function Square(props) {
     return (
     <button className="square" onClick={props.onClick}>
         {props.value}
     </button>
-    );
-}
-
-function Routing() {
-    return (
-    <Router>
-        <div>
-            <ul>
-            <li>
-                <Link to="/">Startpage</Link>
-            </li>
-            <li>
-                <Link to="/">Game</Link>
-            </li>
-            </ul>
-
-            <Route exact path="-/" component={Startpage} />
-            <Route path="/game" component={Game} />
-        </div>
-    </Router>
-    );
-}
-
-function Startpage() {
-    return (
-        <div>
-            <h2>Startpage</h2>
-            <p>'Click on "Game" to get to the actual game.'</p>
-            <br />
-            <p>'Maximum of two players allowed per game.'</p>
     );
 }
 
@@ -200,20 +170,13 @@ export default class Board extends React.Component {
     }
 
     handleNameClick() {
-        if(this.nameTextInput !== null && this.state.people.length <= 1) {
+        if(this.nameTextInput.value && this.state.people.length <= 1) {
             this.setState({
             people: this.state.people.concat(this.nameTextInput.value)
             });
+            this.nameTextInput.value='';
+            this.nameTextInput.focus();
         }
-    }
-
-    componentDidMount() {
-        ReactDOM.findDOMNode(this.nameTextInput).focus();
-    }
-
-    componentDidUpdate() {
-        this.nameTextInput.value='';
-        ReactDOM.findDOMNode(this.nameTextInput).focus();
     }
 
     renderSquare(x, y) {
@@ -248,6 +211,15 @@ export default class Board extends React.Component {
             });
         return (
         <React.Fragment>
+
+            <Router>
+            <Switch>
+                <Route path="/" component={Home} exact />
+                <Route path="/game" component={Board} />
+                <Route component={Error} />
+            </Switch>
+            </Router>
+
         <div>
             <div className="status">{status}</div>
             {rows}
@@ -263,14 +235,11 @@ export default class Board extends React.Component {
             <button type="button" className="btnAddPlayer"
             onClick={this.handleNameClick}>Add</button>
             </div>
-            <br />
-
             <div className="row">
                 <div className="column">
                 <ol>{names}</ol>
                 </div>
             </div>
-           <br />
         </div>
         </React.Fragment>
         );

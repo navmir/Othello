@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import './index.css';
 import Home from "./components/Home";
 import Error from "./components/Error";
+import Navigation from "./components/Navigation";
 
 function Square(props) {
     return (
@@ -213,11 +214,14 @@ export default class Board extends React.Component {
         <React.Fragment>
 
             <Router>
+            <div>
+                <Navigation />
             <Switch>
                 <Route path="/" component={Home} exact />
-                <Route path="/game" component={Board} />
+                <Route path="/board" component={Board} />
                 <Route component={Error} />
             </Switch>
+            </div>
             </Router>
 
         <div>

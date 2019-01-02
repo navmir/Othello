@@ -1,8 +1,10 @@
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+// eslint-disable-next-line
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
 import './index.css';
 import Home from "./components/Home";
-import Error from "./components/Error";
+import Path from "./components/Path";
 import Navigation from "./components/Navigation";
 
 function Square(props) {
@@ -208,7 +210,7 @@ export default class Board extends React.Component {
         }
 
         let names = this.state.people.map(name => {
-            return <li>{name}</li>;
+        return <li>{name}</li>;
             });
         return (
         <React.Fragment>
@@ -217,11 +219,10 @@ export default class Board extends React.Component {
             <div>
                 <Navigation />
             <Switch>
-                <Route path="/" component={Home} exact />
-                <Route path="/board" component={Board} />
-                <Route component={Error} />
+                <Route path="/home" component={Home} />
+                <Route component={Path} />
             </Switch>
-            </div>
+           </div>
             </Router>
 
         <div>
@@ -248,4 +249,4 @@ export default class Board extends React.Component {
         </React.Fragment>
         );
     }
-}
+};

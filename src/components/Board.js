@@ -1,11 +1,4 @@
-// eslint-disable-next-line
-import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-
-import './index.css';
-import Home from "./components/Home";
-import Path from "./components/Path";
-import Navigation from "./components/Navigation";
+import React from 'react';
 
 function Square(props) {
     return (
@@ -214,18 +207,8 @@ export default class Board extends React.Component {
             });
         return (
         <React.Fragment>
-
-            <Router>
-            <div>
-                <Navigation />
-            <Switch>
-                <Route path="/home" component={Home} />
-                <Route component={Path} />
-            </Switch>
-           </div>
-            </Router>
-
         <div>
+        <br />
             <div className="status">{status}</div>
             {rows}
         </div>

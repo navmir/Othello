@@ -225,6 +225,7 @@ export default class Board extends React.Component {
             </div>
             <div className="row">
                 <div className="column">
+                <h3>Players:</h3>
                 <ol>{names}</ol>
                 </div>
             </div>

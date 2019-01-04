@@ -11,8 +11,8 @@
   "scripts": {
     "start": "node node_modules/react-scripts start",
     "build": "react-scripts build",
-    "test": "node node_modules/react-scripts test --env=jsdom",
-    "eject": "node node_modules/react-scripts eject"
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   },
   "browserslist": [
     ">0.2%",

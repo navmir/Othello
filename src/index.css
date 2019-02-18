@@ -48,3 +48,22 @@ body {
   .game-info {
     margin-left: 20px;
   }
+  
+  .sortButton {
+    margin-left: 15px;
+    margin-top: 15px;
+    height: 20px;
+  }
+  
+  .move-list-item-selected{
+    float: left;
+    font-weight: bold;
+  }
+  
+  .movelist {
+   width: 140px;
+  }
+
+  .square.highlight {
+    background: #ddd
+  }

@@ -67,3 +67,28 @@ body {
   .square.highlight {
     background: #ddd
   }
+
+  .available-square {
+    cursor: pointer;
+  }
+  
+  .not-available-square {
+    cursor: not-allowed;
+  }
+
+  .marker {
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    margin-left: 10%;
+    margin-top: 10%;
+  }
+  
+  .marker.black {
+    background: #111;
+  }
+  
+  .marker.white {
+    background: #eee;
+    border: 1px solid #111;
+  }

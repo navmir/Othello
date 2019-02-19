@@ -1,16 +1,13 @@
 import React from 'react';
 import '../index.css';
 
-function Square(props) {
-    const className = "square" + (props.highlight ? " highlight" : "");
+export default function Square(props) {
+    let squareClasses = `square ${props.isAvailable ? 'available-square' : 'not-available-square'}`;
+    let colorMarkerClasses = props.value === 'X' ? 'marker white' : props.value === 'O' ? 'marker black' : '';
 
     return (
-    <button
-        className={className}
-        onClick={props.onClick}>
-        {props.value}
-    </button>
+        <div className={squareClasses} onClick={props.onClick}>
+            {props.value ? <div className={colorMarkerClasses}></div> : ''}
+        </div>
     );
 }
-
-export default Square;

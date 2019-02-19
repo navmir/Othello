@@ -2,150 +2,71 @@ import React from 'react';
 import '../index.css';
 import Board from "./Board";
 
-function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return {
-                winner: squares[a],
-                line: lines[i],
-            };
-        }
-    }
-    return {
-        winner: null,
-    };
+function calculateWinner(xNumbers, oNumbers) {
+    return (xNumbers + oNumbers < 64) ? null : (xNumbers === oNumbers) ? 'XO' : (xNumbers > oNumbers ? 'X' : 'O');
 }
 
-export function flipBetweenIndex(indexFrom, indexTo, array, squareType) {
-    array = array.slice()
+function flipSquares(squares, position, xIsNext) {
+    let modifiedBoard = null;
+    let [startX, startY] = [position % 8, (position - position % 8) / 8];
 
-    for (let indexToFlip = indexFrom; indexToFlip < indexTo; indexToFlip++) {
-        array[indexToFlip] = squareType
+    if (squares[position] !== null) {
+        return null;
     }
-    return array
-}
 
-export function updateRow(row) {
-    row = row.slice()
-    for (let index = 0; index < row.length; index++) {
-        if (row[index]) {
-            const firstNonNullElement = row[index]
-            for (let indexRight = row.length; indexRight > index; indexRight--) {
-                const elementFromTheRight = row[indexRight]
-                if (firstNonNullElement === elementFromTheRight) {
-                    return flipBetweenIndex(index, indexRight, row, firstNonNullElement)
-                }
+    // "Iterate all directions these numbers are the offsets in the array to reach the next square")
+    [1, 7, 8, 9, -1, -7, -8, -9].forEach((offset) => {
+        let flippedSquares = modifiedBoard ? modifiedBoard.slice() : squares.slice();
+        let atLeastOneMarkIsFlipped = false;
+        let [lastXpos, lastYpos] = [startX, startY];
+
+        for (let y = position + offset; y < 64; y = y + offset) {
+
+            // Calculate row and col of the current square
+            let [xPos, yPos] = [y % 8, (y - y % 8) / 8];
+
+            if (Math.abs(lastXpos - xPos) > 1 || Math.abs(lastYpos - yPos) > 1) {
+                break;
             }
-        }
 
-    }
-    return row
-}
-
-export function updateDiagonaly(board) {
-    let resultBoard = board.slice()
-    console.log(resultBoard)
-    let flip = false
-    const boardLength = board.length - 1
-    const x = 0
-    for (let y = 0; y < boardLength; y++) {
-        const square = board[x].slice()[y]
-        for (let i = 0; i < (boardLength - y); i++) {
-            if (flip) {
-                resultBoard[boardLength - y - i][boardLength - x - i] = square
-            } else {
-                const squareToCompare = board[boardLength - y - i][boardLength - x - i]
-                flip = (square !== null && squareToCompare !== null && square === squareToCompare)
+            // Next square occupied with the opposite color
+            if (flippedSquares[y] === (!xIsNext ? 'X' : 'O')) {
+                flippedSquares[y] = xIsNext ? 'X' : 'O';
+                atLeastOneMarkIsFlipped = true;
+                [lastXpos, lastYpos] = [xPos, yPos];
+                continue;
             }
-        }
-    }
-    flip = false
-    const y = 0
-    for (let x = 0; x < boardLength; x++) {
-        const square = board[x].slice()[y]
-        for (let i = 0; i < (boardLength - x); i++) {
-            if (flip) {
-                resultBoard[boardLength - y - i][boardLength - x - i] = square
-            } else {
-                const squareToCompare = board[boardLength - y - i][boardLength - x - i]
-                flip = (square !== null && squareToCompare !== null && square === squareToCompare)
+
+            // Next square occupied with the same color
+            else if ((flippedSquares[y] === (xIsNext ? 'X' : 'O')) && atLeastOneMarkIsFlipped) {
+                flippedSquares[position] = xIsNext ? 'X' : 'O';
+                modifiedBoard = flippedSquares.slice();
             }
+            break;
         }
-    }
-    flip = false
-    const x2 = 0
-    for (let y = 0; y < boardLength; y++) {
-        const square = board[x2].slice()[y]
-        for (let i = 0; i < y; i++) {
-            if (flip) {
-                resultBoard[y - i][x + i] = square
-            } else {
-                const squareToCompare = board[y - i][x + i]
-                flip = (square !== null && squareToCompare !== null && square === squareToCompare)
-            }
-        }
-    }
-    flip = false
-    const y2 = 0
-    for (let x = 0; x < boardLength; x++) {
-        const square = board[x].slice()[y2]
-        for (let i = 0; i < (boardLength - x); i++) {
-            if (flip) {
-                resultBoard[boardLength - y2 - i][boardLength - x - i] = square
-            } else {
-                const squareToCompare = board[boardLength - y2 - i][boardLength - x - i]
-                flip = (square !== null && squareToCompare !== null && square === squareToCompare)
-            }
-        }
-    }
-    console.log('--------')
-    console.log(resultBoard)
-    return resultBoard
+    });
+    return modifiedBoard;
 }
 
-function createBoard(length) {
-    return Array(length).fill(Array(length).fill(null))
+function checkAvailableMoves(color, squares) {
+    return squares
+        .map((value, index) => { return flipSquares(squares, index, color) ? index : null; })
+        .filter((item) => { return item !== null; });
 }
 
-export function flipBoard(board) {
-    board = board.slice()
-    let flippedBoard = createBoard(board.length)
-    for (let x = 0; x < board.length; x++) {
-        for (let y = 0; y < board.length; y++) {
-            const value = board[x].slice()[y]
-            let row = flippedBoard[y].slice()
-            row[x] = value
-            flippedBoard[y] = row.slice()
-        }
-    }
-    return flippedBoard
-}
-
-export function updateBoardAfterMarkerPlaced(board) {
-    const updatedHirizontal = board.map(row => updateRow(row))
-    const flipped = flipBoard(updatedHirizontal)
-    const updatedVerticaly = flipped.map(col => updateRow(col))
-    const updatedBoard = flipBoard(updatedVerticaly)
-    return updatedBoard
-}
-
-class Game extends React.Component {
+export default class Game extends React.Component {
     constructor(props) {
         super(props);
+
+        const initSquares = Array(64).fill(null);
+        [initSquares[8 * 3 + 3], initSquares[8 * 3 + 4], initSquares[8 * 4 + 4], initSquares[8 * 4 + 3]] = ['X', 'O', 'X', 'O'];
+
         this.state = {
             history: [{
-                squares: createBoard(1),
+                squares: initSquares,
+                xNumbers: 2,
+                oNumbers: 2,
+                xWasNext: true
             }],
             xIsNext: true,
             people: [],
@@ -157,26 +78,28 @@ class Game extends React.Component {
     }
 
     handleClick(i) {
-        // ToDo man får bara placera bredvid andra redan placerade rutor
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
-        const current = history[history.length - 1];
-        const squares = current.squares.slice();
-        const squaresX = current.squares[i].slice();
-        const updatedSquares = updateBoardAfterMarkerPlaced(squares)
+        const current = history[this.state.stepNumber];
 
-        if (calculateWinner(squares).winner || squares[i]) {
+        if (calculateWinner(current.xNumbers, current.oNumbers) || current.squares[i]) {
             return;
         }
 
-        squares[i] = this.state.xIsNext ? 'X' : 'O';
-        //squares[x] = squaresX
+        const changedSquares = flipSquares(current.squares, i, this.state.xIsNext);
+        if (changedSquares === null) return;
+
+        const xNumbers = changedSquares.reduce((acc, current) => { return current === 'X' ? acc + 1 : acc }, 0);
+        const oNumbers = changedSquares.reduce((acc, current) => { return current === 'O' ? acc + 1 : acc }, 0);
+        let shouldTurnColor = checkAvailableMoves(!this.state.xIsNext, changedSquares).length > 0 ? !this.state.xIsNext : this.state.xIsNext;
+
         this.setState({
             history: history.concat([{
-                squares: squares,
-                latestMovedSquare: i,
+                squares: changedSquares,
+                xNumbers: xNumbers,
+                oNumbers: oNumbers,
+                xWasNext: shouldTurnColor
             }]),
-            squares: updatedSquares,
-            xIsNext: !this.state.xIsNext,
+            xIsNext: shouldTurnColor,
             stepNumber: history.length,
         });
     }
@@ -202,8 +125,8 @@ class Game extends React.Component {
 
     jumpTo(step) {
         this.setState({
-            stepNumber: step,
-            xIsNext: (step % 2) === 0,
+            stepNumber: parseInt(step, 0),
+            xIsNext: this.state.history[step].xWasNext
         });
     }
 
@@ -216,33 +139,43 @@ class Game extends React.Component {
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
-        const winInfo = calculateWinner(current.squares);
-        const winner = winInfo.winner;
-        let status;
+        let winner = calculateWinner(current.xNumbers, current.oNumbers);
 
         const moves = history.map((step, move) => {
-            const latestMoveSquare = step.latestMoveSquare;
-            const col = 1 + latestMoveSquare % 3;
-            const row = 1 + Math.floor(latestMoveSquare / 3);
             const desc = move ?
-                `Go to move #${move} (${col}), ${row})` :
+                `Go to move #` + move :
                 "Go to game start";
 
             return (
-                <li key={move}>
-                    <button
-                        className={`${move === this.state.stepNumber ? "move-list-item-selected" : ""} ${"movelist"}`}
-                        onClick={() => this.jumpTo(move)}>{desc}
-                    </button>
-                </li>
+                <option
+                    className={`${move === this.state.stepNumber ? "move-list-item-selected" : ""} ${"movelist"}`}
+                    key={move} value={move}>{desc}
+                </option>
             );
         });
 
-        if (winner) {
-            status = 'Winner: ' + winner;
-        } else {
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        const selectMoves = () => {
+            return (
+                <select
+                    id="dropdown"
+                    ref={(input) => this.selectedMove = input}
+                    onChange={() => this.jumpTo(this.selectedMove.value)}
+                    value={this.state.stepNumber}>
+                    {moves}
+                </select>
+            )
         }
+
+        let availableMoves = checkAvailableMoves(current.xWasNext, current.squares);
+        let availableMovesOpposite = checkAvailableMoves(!current.xWasNext, current.squares);
+
+        if ((availableMoves.length === 0) && (availableMovesOpposite.length === 0)) {
+            winner = current.xNumbers === current.oNumbers ? 'XO' : current.xNumbers > current.oNumbers ? 'X' : 'O';
+        }
+
+        let status = winner ? (winner === 'XO') ? 'It is a draw' : 'The winner is ' + (winner === 'X' ? 'white' : 'black') :
+            [this.state.xIsNext ? 'Whites turn' : 'Blacks turn', ' with ', availableMoves.length, ' available moves left.'].join('');
+
 
         let names = this.state.people.map(name => {
             return <li>{name}</li>;
@@ -259,15 +192,18 @@ class Game extends React.Component {
                 <div className="game">
                     <div className="game-board">
                         <br />
-                        <div>{status}</div>
+                        <div classNae="game-status">{status} {winner}</div>
                         <Board
                             squares={current.squares}
+                            availableMoves={availableMoves}
                             onClick={(i) => this.handleClick(i)}
-                            winLine={winInfo.line}
                         />
                     </div>
                     <div className="game-info">
-                        <ol>{moves}</ol>
+                        <div>White markers: {current.xNumbers}</div>
+                        <div>Black Markers: {current.oNumbers}</div>
+                        <br />
+                        <div>{selectMoves()}</div>
                     </div>
                     <button
                         className="sortButton"
@@ -304,59 +240,3 @@ class Game extends React.Component {
         );
     }
 }
-
-export default Game;
-
-
-//        <React.Fragment>
-//        <div>
-//        <br />
-//            <div className="status">{status}</div>
-//            {rows}
-//        </div>
-//        <div className="row">
-//            <div className="column">
-//            <br />
-//              <input type="text" placeholder="Enter player name"
-//              ref={(ref) => this.nameTextInput = ref}
-//              className="form-control" />
-//            </div>
-//            <div className="col-md-4">
-//            <button type="button" className="btnAddPlayer"
-//            onClick={this.handleNameClick}>Add</button>
-//            </div>
-//            <div className="row">
-//                <div className="column">
-//                <h3>Players:</h3>
-//                <ol>{names}</ol>
-//                </div>
-//            </div>
-//        </div>
-//        </React.Fragment>
-
-
-
-
-// handleClick(x, y) {
-//     // ToDo man får bara placera bredvid andra redan placerade rutor
-//     const history = this.state.history.slice(0, this.state.stepNumber + 1);
-//     const current = history[history.length - 1];
-//     const squares = current.squares.slice();
-//     const squaresX = current.squares[x].slice();
-//     const updatedSquares = updateBoardAfterMarkerPlaced(squares)
-
-//     if (calculateWinner(squares).winner || squares([x][y])) {
-//         return;
-//     }
-
-//     squaresX[y] = this.state.xIsNext ? 'X' : 'O';
-//     squares[x] = squaresX
-//     this.setState({
-//         history: history.concat([{
-//             squares: squares,
-//         }]),
-//         squares: updatedSquares,
-//         xIsNext: !this.state.xIsNext,
-//         stepNumber: history.length,
-//     });
-// }
